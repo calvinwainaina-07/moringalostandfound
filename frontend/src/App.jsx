@@ -4,6 +4,7 @@ import "./App.css"
 function App() {
   const [searchTerm, setSearchTerm] = useState("")
   const [showForm, setShowForm] = useState(false)
+  const [filter, setFilter] = useState("ALL")
 
   const [items, setItems] = useState([
     {
@@ -33,11 +34,16 @@ function App() {
     details: "",
   })
 
-  const filteredItems = items.filter((item) =>
-    `${item.name} ${item.location} ${item.status}`
+  const filteredItems = items.filter((item) => {
+    const matchesSearch = `${item.name} ${item.location} ${item.status}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
-  )
+
+    const matchesFilter =
+      filter === "ALL" || item.status === filter
+
+    return matchesSearch && matchesFilter
+  })
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -55,15 +61,14 @@ function App() {
       return
     }
 
-    setItems([
-      ...items,
-      {
-        status: formData.status,
-        name: formData.name,
-        location: formData.location,
-        details: formData.details,
-      },
-    ])
+    const newItem = {
+      status: formData.status,
+      name: formData.name,
+      location: formData.location,
+      details: formData.details,
+    }
+
+    setItems([...items, newItem])
 
     setFormData({
       status: "LOST",
@@ -73,46 +78,98 @@ function App() {
     })
 
     setShowForm(false)
+    setFilter("ALL")
+    setSearchTerm("")
+  }
+
+  function openReportForm(event) {
+    event.preventDefault()
+    setShowForm(true)
+    setFilter("ALL")
   }
 
   return (
     <div className="dashboard">
 
+      {/* SIDEBAR */}
+
       <aside className="sidebar">
         <h2>Lost & Found</h2>
 
         <nav>
-          <a href="#" className="active">Dashboard</a>
-          <a href="#">Lost Items</a>
-          <a href="#">Found Items</a>
+          <a
+            href="#"
+            className={filter === "ALL" && !showForm ? "active" : ""}
+            onClick={(event) => {
+              event.preventDefault()
+              setFilter("ALL")
+              setShowForm(false)
+            }}
+          >
+            Dashboard
+          </a>
 
           <a
             href="#"
+            className={filter === "LOST" ? "active" : ""}
             onClick={(event) => {
               event.preventDefault()
-              setShowForm(true)
+              setFilter("LOST")
+              setShowForm(false)
             }}
+          >
+            Lost Items
+          </a>
+
+          <a
+            href="#"
+            className={filter === "FOUND" ? "active" : ""}
+            onClick={(event) => {
+              event.preventDefault()
+              setFilter("FOUND")
+              setShowForm(false)
+            }}
+          >
+            Found Items
+          </a>
+
+          <a
+            href="#"
+            className={showForm ? "active" : ""}
+            onClick={openReportForm}
           >
             Report Item
           </a>
         </nav>
       </aside>
 
+      {/* MAIN CONTENT */}
+
       <main className="main-content">
+
+        {/* HEADER */}
 
         <header className="dashboard-header">
           <div>
             <h1>Dashboard</h1>
-            <p>Welcome to the Moringa Lost & Found system.</p>
+
+            <p>
+              Welcome to the Moringa Lost & Found system.
+            </p>
           </div>
 
           <button
             className="btn btn-primary"
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setShowForm(true)
+              setFilter("ALL")
+            }}
           >
             + Report Item
           </button>
         </header>
+
+        {/* REPORT FORM */}
 
         {showForm && (
           <section className="items-section">
@@ -122,6 +179,7 @@ function App() {
 
               <label>
                 Item Status
+
                 <select
                   name="status"
                   value={formData.status}
@@ -134,6 +192,7 @@ function App() {
 
               <label>
                 Item Name
+
                 <input
                   type="text"
                   name="name"
@@ -145,6 +204,7 @@ function App() {
 
               <label>
                 Location
+
                 <input
                   type="text"
                   name="location"
@@ -156,6 +216,7 @@ function App() {
 
               <label>
                 Description
+
                 <input
                   type="text"
                   name="details"
@@ -184,6 +245,8 @@ function App() {
           </section>
         )}
 
+        {/* SEARCH */}
+
         <input
           className="search-bar"
           type="text"
@@ -192,39 +255,57 @@ function App() {
           onChange={(event) => setSearchTerm(event.target.value)}
         />
 
+        {/* STATISTICS */}
+
         <section className="cards">
 
           <div className="card">
             <h3>Lost Items</h3>
+
             <div className="number">
-              {items.filter((item) => item.status === "LOST").length}
+              {items.filter(
+                (item) => item.status === "LOST"
+              ).length}
             </div>
           </div>
 
           <div className="card">
             <h3>Found Items</h3>
+
             <div className="number">
-              {items.filter((item) => item.status === "FOUND").length}
+              {items.filter(
+                (item) => item.status === "FOUND"
+              ).length}
             </div>
           </div>
 
           <div className="card">
             <h3>Items Returned</h3>
+
             <div className="number">5</div>
           </div>
 
         </section>
 
+        {/* ITEMS */}
+
         <section className="items-section">
 
-          <h2>Recent Items</h2>
+          <h2>
+            {filter === "LOST"
+              ? "Lost Items"
+              : filter === "FOUND"
+              ? "Found Items"
+              : "Recent Items"}
+          </h2>
 
           <div className="item-grid">
 
             {filteredItems.map((item) => (
-
-              <div className="item-card" key={`${item.name}-${item.location}`}>
-
+              <div
+                className="item-card"
+                key={`${item.name}-${item.location}`}
+              >
                 <span
                   className={`status ${
                     item.status === "LOST"
@@ -244,9 +325,7 @@ function App() {
                 <p>
                   {item.details}
                 </p>
-
               </div>
-
             ))}
 
           </div>
@@ -258,7 +337,6 @@ function App() {
         </section>
 
       </main>
-
     </div>
   )
 }
