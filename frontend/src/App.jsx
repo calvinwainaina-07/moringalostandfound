@@ -1,6 +1,36 @@
-import "./App.css";
+import { useState } from "react"
+import "./App.css"
 
 function App() {
+  const [searchTerm, setSearchTerm] = useState("")
+
+  const items = [
+    {
+      status: "LOST",
+      name: "Black Backpack",
+      location: "Moringa Campus",
+      details: "Reported recently",
+    },
+    {
+      status: "FOUND",
+      name: "Student ID Card",
+      location: "Library",
+      details: "Reported recently",
+    },
+    {
+      status: "LOST",
+      name: "Blue Water Bottle",
+      location: "Cafeteria",
+      details: "Reported recently",
+    },
+  ]
+
+  const filteredItems = items.filter((item) =>
+    `${item.name} ${item.location} ${item.status}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  )
+
   return (
     <div className="dashboard">
       <aside className="sidebar">
@@ -30,6 +60,8 @@ function App() {
           className="search-bar"
           type="text"
           placeholder="Search for an item..."
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
         />
 
         <section className="cards">
@@ -53,31 +85,30 @@ function App() {
           <h2>Recent Items</h2>
 
           <div className="item-grid">
-            <div className="item-card">
-              <span className="status lost">LOST</span>
-              <h3>Black Backpack</h3>
-              <p>Location: Moringa Campus</p>
-              <p>Reported recently</p>
-            </div>
+            {filteredItems.map((item) => (
+              <div className="item-card" key={item.name}>
+                <span
+                  className={`status ${
+                    item.status === "LOST" ? "lost" : "found"
+                  }`}
+                >
+                  {item.status}
+                </span>
 
-            <div className="item-card">
-              <span className="status found">FOUND</span>
-              <h3>Student ID Card</h3>
-              <p>Location: Library</p>
-              <p>Reported recently</p>
-            </div>
-
-            <div className="item-card">
-              <span className="status lost">LOST</span>
-              <h3>Blue Water Bottle</h3>
-              <p>Location: Cafeteria</p>
-              <p>Reported recently</p>
-            </div>
+                <h3>{item.name}</h3>
+                <p>Location: {item.location}</p>
+                <p>{item.details}</p>
+              </div>
+            ))}
           </div>
+
+          {filteredItems.length === 0 && (
+            <p>No items found.</p>
+          )}
         </section>
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
