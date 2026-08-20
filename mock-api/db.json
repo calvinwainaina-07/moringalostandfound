@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Calvin Wainaina",
+      "email": "calvin@example.com",
+      "role": "student"
+    },
+    {
+      "id": 2,
+      "name": "Jane Doe",
+      "email": "jane@example.com",
+      "role": "student"
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "title": "Black Backpack",
+      "description": "Black laptop backpack with a laptop compartment.",
+      "category": "Bags",
+      "location": "Moringa School",
+      "date": "2026-08-20",
+      "status": "lost",
+      "type": "lost",
+      "image": "",
+      "userId": 1
+    },
+    {
+      "id": 2,
+      "title": "Blue Water Bottle",
+      "description": "Blue reusable water bottle.",
+      "category": "Other",
+      "location": "Moringa School Cafeteria",
+      "date": "2026-08-19",
+      "status": "found",
+      "type": "found",
+      "image": "",
+      "userId": 2
+    }
+  ],
+  "claims": [],
+  "rewards": []
+}

@@ -1,0 +1,15 @@
+{
+  "name": "moringalostandfound",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "mock-api": "json-server mock-api/db.json --port 3000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "json-server": "..."
+  }
+}
