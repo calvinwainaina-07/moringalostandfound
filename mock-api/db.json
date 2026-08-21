@@ -1,11 +1,5 @@
 {
-  "users": [
-    {
-      "email": "hashimdixon5@gmail.com",
-      "password": "$2a$10$NPfNq7Dro8cgTlWTOLhA6Oo9IDQMPMkG/OMw1uNTqOrlZDT/1/F3a",
-      "id": 1
-    }
-  ],
+  "users": [],
   "items": [
     {
       "id": 1,
@@ -50,6 +44,19 @@
       "status": "Lost",
       "reward": "KSh 2000",
       "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
+    },
+    {
+      "id": 5,
+      "name": "Wireless Earbuds",
+      "category": "Electronics",
+      "location": "Lecture Hall 3",
+      "date": "8 May 2024",
+      "description": "White Sony earbuds in case",
+      "status": "Found",
+      "reward": null,
+      "image": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400"
     }
-  ]
+  ],
+  "claims": [],
+  "rewards": []
 }
