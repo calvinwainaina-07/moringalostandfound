@@ -1,3 +1,4 @@
+frontend-dashboard
 import { useState } from "react"
 import "./App.css"
 
@@ -87,8 +88,20 @@ function App() {
     setShowForm(true)
     setFilter("ALL")
   }
+=======
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import ReportLost from "./pages/ReportLost";
+import ReportFound from "./pages/ReportFound";
+import ItemDetails from "./pages/ItemDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
+dev
 
+export default function App() {
   return (
+ frontend-dashboard
     <div className="dashboard">
 
       {/* SIDEBAR */}
@@ -342,3 +355,18 @@ function App() {
 }
 
 export default App
+=======
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/report-lost" element={<ReportLost />} />
+        <Route path="/report-found" element={<ReportFound />} />
+        <Route path="/items/:id" element={<ItemDetails />} />
+      </Route>
+    </Routes>
+  );
+}
+dev
