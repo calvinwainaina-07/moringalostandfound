@@ -13,25 +13,44 @@ function UserDashboard() {
   }, [])
 
   if (!dashboardData) {
-    return <p>Loading dashboard...</p>
+    return (
+      <div className="user-dashboard">
+        <p>Loading dashboard...</p>
+      </div>
+    )
   }
 
   const columns = [
-    { key: "item", label: "Item" },
-    { key: "status", label: "Status" },
-    { key: "date", label: "Date" },
+    {
+      key: "item",
+      label: "Item",
+    },
+    {
+      key: "status",
+      label: "Status",
+    },
+    {
+      key: "date",
+      label: "Date",
+    },
   ]
 
   return (
     <div className="user-dashboard">
+
       <div className="dashboard-header">
-        <h1>User Dashboard</h1>
-        <p>
-          Welcome back! Here's an overview of your lost and found activity.
-        </p>
+        <div>
+          <h1>User Dashboard</h1>
+
+          <p>
+            Welcome back! Here's an overview of your
+            lost and found activity.
+          </p>
+        </div>
       </div>
 
       <div className="dashboard-cards">
+
         <DashboardCard
           title="Lost Items"
           value={dashboardData.lostItems}
@@ -55,16 +74,20 @@ function UserDashboard() {
           value={dashboardData.rewards}
           description="Points earned"
         />
+
       </div>
 
       <div className="dashboard-section">
+
         <h2>Recent Activity</h2>
 
         <DashboardTable
           columns={columns}
           data={dashboardData.recentItems}
         />
+
       </div>
+
     </div>
   )
 }
