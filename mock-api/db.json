@@ -16,27 +16,58 @@
   "items": [
     {
       "id": 1,
-      "title": "Black Backpack",
-      "description": "Black laptop backpack with a laptop compartment.",
+      "name": "Black Backpack",
       "category": "Bags",
-      "location": "Moringa School",
-      "date": "2026-08-20",
-      "status": "lost",
-      "type": "lost",
-      "image": "",
-      "userId": 1
+      "location": "Library Area",
+      "date": "12 May 2024",
+      "description": "Black backpack with laptop compartment. Brand: Dell.",
+      "status": "Lost",
+      "reward": "KSh 500",
+      "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400"
     },
     {
       "id": 2,
-      "title": "Blue Water Bottle",
-      "description": "Blue reusable water bottle.",
-      "category": "Other",
-      "location": "Moringa School Cafeteria",
-      "date": "2026-08-19",
-      "status": "found",
-      "type": "found",
-      "image": "",
-      "userId": 2
+      "name": "Water Bottle",
+      "category": "Others",
+      "location": "Sports Complex",
+      "date": "11 May 2024",
+      "description": "Blue metal water bottle",
+      "status": "Found",
+      "reward": null,
+      "image": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400"
+    },
+    {
+      "id": 3,
+      "name": "Student ID",
+      "category": "Keys",
+      "location": "Cafeteria",
+      "date": "10 May 2024",
+      "description": "Moringa student ID card",
+      "status": "Lost",
+      "reward": "KSh 200",
+      "image": "https://images.unsplash.com/photo-1586769852836-bc069f19e1b6?w=400"
+    },
+    {
+      "id": 4,
+      "name": "Laptop",
+      "category": "Electronics",
+      "location": "Computer Lab",
+      "date": "9 May 2024",
+      "description": "Silver MacBook Pro 13-inch",
+      "status": "Lost",
+      "reward": "KSh 2000",
+      "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
+    },
+    {
+      "id": 5,
+      "name": "Wireless Earbuds",
+      "category": "Electronics",
+      "location": "Lecture Hall 3",
+      "date": "8 May 2024",
+      "description": "White Sony earbuds in case",
+      "status": "Found",
+      "reward": null,
+      "image": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400"
     }
   ],
   "claims": [],
