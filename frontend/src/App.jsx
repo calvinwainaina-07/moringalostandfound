@@ -2,6 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/HomePage";
+import ReportLost from "./pages/ReportLost";
+import ReportFound from "./pages/ReportFound";
+import ItemDetails from "./pages/ItemDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -12,6 +15,9 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/report-lost" element={<ReportLost />} />
+        <Route path="/report-found" element={<ReportFound />} />
+        <Route path="/items/:id" element={<ItemDetails />} />
       </Route>
     </Routes>
   );
