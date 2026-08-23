@@ -8,13 +8,14 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "json-server db.json -m ./node_modules/json-server-auth --port 4001"
+    "server": "json-server db.json -m ./node_modules/json-server-auth --port 4001",
+    "mock-api": "json-server-auth db.json --port 4001"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
     "@tailwindcss/vite": "^4.3.3",
     "axios": "^1.19.0",
-    "express": "^5.2.1",
+    "express": "^4.22.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-redux": "^9.3.0",

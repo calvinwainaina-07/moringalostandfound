@@ -49,16 +49,30 @@ export default function HomePage() {
         margin: "0 auto",
       }}
     >
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px",
+        }}
+      >
         <div>
           <h1 style={{ margin: 0, fontSize: "22px", fontWeight: 600 }}>
             Hello, {user?.email?.split("@")[0] || "Moringa"}!
           </h1>
-          <p style={{ margin: "4px 0 0", color: "#9ca3af", fontSize: "14px" }}>
+
+          <p
+            style={{
+              margin: "4px 0 0",
+              color: "#9ca3af",
+              fontSize: "14px",
+            }}
+          >
             Find lost & found items
           </p>
         </div>
+
         <button
           onClick={() => dispatch(logout())}
           style={{
@@ -76,9 +90,16 @@ export default function HomePage() {
       </div>
 
       <SearchBar value={search} onChange={setSearch} />
+
       <CategoryFilter active={category} onChange={setCategory} />
 
-      <h2 style={{ fontSize: "16px", margin: "0 0 12px", color: "#e5e7eb" }}>
+      <h2
+        style={{
+          fontSize: "16px",
+          margin: "0 0 12px",
+          color: "#e5e7eb",
+        }}
+      >
         Recent Items
       </h2>
 
@@ -87,9 +108,10 @@ export default function HomePage() {
       ) : filteredItems.length === 0 ? (
         <p style={{ color: "#9ca3af" }}>No items found.</p>
       ) : (
-        filteredItems.map((item) => <ItemCard key={item.id} item={item} />)
+        filteredItems.map((item) => (
+          <ItemCard key={item.id} item={item} />
+        ))
       )}
     </div>
   );
 }
-
