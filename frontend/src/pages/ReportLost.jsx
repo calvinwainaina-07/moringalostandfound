@@ -1,170 +1,267 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { createItem } from "../services/itemService";
 
 export default function ReportLost() {
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+
   const [form, setForm] = useState({
     name: "",
-    category: "",
+    category: "Others",
     location: "",
-    date: "",
     description: "",
+    reward: "",
+    image: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Report submitted! (UI only for now – will connect to Flask later)");
-    navigate("/");
+    setError("");
+
+    if (!form.name.trim()) {
+      setError("Please enter the item name.");
+      return;
+    }
+
+    if (!form.location.trim()) {
+      setError("Please enter where you lost the item.");
+      return;
+    }
+
+    if (!form.description.trim()) {
+      setError("Please describe the item.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const newItem = {
+        name: form.name.trim(),
+        category: form.category,
+        location: form.location.trim(),
+        description: form.description.trim(),
+        reward: form.reward.trim() || null,
+        image: form.image.trim() || null,
+        status: "Lost",
+        reportType: "lost",
+        userId: user?.id || null,
+        reportedBy: user?.email || null,
+        createdAt: new Date().toISOString(),
+      };
+
+      await createItem(newItem);
+
+      navigate("/home", { replace: true });
+    } catch (err) {
+      console.error("Failed to report lost item:", err);
+      setError("Could not submit your lost item. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#2c2d32",
-        color: "#fff",
-        padding: "20px 16px",
-        maxWidth: "480px",
-        margin: "0 auto",
-      }}
-    >
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#fff",
-          fontSize: "18px",
-          marginBottom: "16px",
-          cursor: "pointer",
-        }}
-      >
-        ← Back
-      </button>
+    <div className="min-h-screen bg-[#2C2D32] px-4 py-6 pb-24 text-white">
+      <div className="mx-auto w-full max-w-2xl">
+        {/* Back Button */}
+        <button
+          type="button"
+          onClick={() => navigate("/home")}
+          className="mb-6 text-sm font-medium text-gray-300 transition hover:text-white"
+        >
+          ← Back to Home
+        </button>
 
-      <h1 style={{ fontSize: "22px", marginBottom: "24px" }}>Report Lost Item</h1>
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-white">
+            Report Lost Item
+          </h1>
 
-      {/* Photo Upload Placeholder */}
-      <div
-        style={{
-          backgroundColor: "#263437",
-          border: "2px dashed #4b5563",
-          borderRadius: "16px",
-          height: "140px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: "20px",
-          color: "#9ca3af",
-        }}
-      >
-        <span style={{ fontSize: "28px" }}>☁️</span>
-        <p style={{ margin: "8px 0 0", fontSize: "14px" }}>Upload photos</p>
-        <p style={{ margin: 0, fontSize: "12px" }}>Tap to upload</p>
-      </div>
+          <p className="mt-2 text-sm text-gray-400">
+            Tell us about the item you lost so other users can help find it.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        {[
-          { name: "name", label: "Item Name", type: "text" },
-          { name: "location", label: "Location", type: "text" },
-          { name: "date", label: "Date Lost", type: "date" },
-        ].map((field) => (
-          <div key={field.name} style={{ marginBottom: "14px" }}>
-            <label style={{ display: "block", fontSize: "13px", marginBottom: "6px", color: "#9ca3af" }}>
-              {field.label}
+        {/* Error */}
+        {error && (
+          <div className="mb-5 rounded-xl border border-[#B62779] bg-[#5A293C]/60 px-4 py-3 text-sm text-pink-100">
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl border border-[#263437] bg-[#263437] p-5 shadow-lg sm:p-6"
+        >
+          {/* Item Name */}
+          <div className="mb-5">
+            <label
+              htmlFor="name"
+              className="mb-2 block text-sm font-medium text-gray-200"
+            >
+              Item Name
             </label>
+
             <input
-              type={field.type}
-              name={field.name}
-              value={form[field.name]}
+              id="name"
+              name="name"
+              type="text"
+              value={form.name}
               onChange={handleChange}
-              required
-              style={{
-                width: "100%",
-                padding: "12px",
-                backgroundColor: "#263437",
-                border: "1px solid #374151",
-                borderRadius: "10px",
-                color: "#fff",
-                fontSize: "14px",
-                boxSizing: "border-box",
-              }}
+              placeholder="e.g. Black Dell Backpack"
+              disabled={loading}
+              className="w-full rounded-xl border border-[#1B4B4B] bg-[#1B4B4B] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-400 focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
-        ))}
 
-        <div style={{ marginBottom: "14px" }}>
-          <label style={{ display: "block", fontSize: "13px", marginBottom: "6px", color: "#9ca3af" }}>
-            Category
-          </label>
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            required
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#263437",
-              border: "1px solid #374151",
-              borderRadius: "10px",
-              color: "#fff",
-              fontSize: "14px",
-            }}
+          {/* Category */}
+          <div className="mb-5">
+            <label
+              htmlFor="category"
+              className="mb-2 block text-sm font-medium text-gray-200"
+            >
+              Category
+            </label>
+
+            <select
+              id="category"
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              disabled={loading}
+              className="w-full rounded-xl border border-[#1B4B4B] bg-[#1B4B4B] px-4 py-3 text-sm text-white outline-none transition focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <option value="Bags">Bags</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Keys">Keys</option>
+              <option value="Documents">Documents</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+
+          {/* Location */}
+          <div className="mb-5">
+            <label
+              htmlFor="location"
+              className="mb-2 block text-sm font-medium text-gray-200"
+            >
+              Where did you lose it?
+            </label>
+
+            <input
+              id="location"
+              name="location"
+              type="text"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="e.g. Room 301"
+              disabled={loading}
+              className="w-full rounded-xl border border-[#1B4B4B] bg-[#1B4B4B] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-400 focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
+
+          {/* Description */}
+          <div className="mb-5">
+            <label
+              htmlFor="description"
+              className="mb-2 block text-sm font-medium text-gray-200"
+            >
+              Description
+            </label>
+
+            <textarea
+              id="description"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Describe the item and include identifying details..."
+              rows={5}
+              disabled={loading}
+              className="w-full resize-y rounded-xl border border-[#1B4B4B] bg-[#1B4B4B] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-400 focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
+
+          {/* Reward */}
+          <div className="mb-5">
+            <label
+              htmlFor="reward"
+              className="mb-2 block text-sm font-medium text-gray-200"
+            >
+              Reward
+              <span className="ml-1 text-xs text-gray-400">
+                (Optional)
+              </span>
+            </label>
+
+            <input
+              id="reward"
+              name="reward"
+              type="text"
+              value={form.reward}
+              onChange={handleChange}
+              placeholder="e.g. KSh 500"
+              disabled={loading}
+              className="w-full rounded-xl border border-[#1B4B4B] bg-[#1B4B4B] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-400 focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </div>
+
+          {/* Image URL */}
+          <div className="mb-6">
+            <label
+              htmlFor="image"
+              className="mb-2 block text-sm font-medium text-gray-200"
+            >
+              Image URL
+              <span className="ml-1 text-xs text-gray-400">
+                (Optional)
+              </span>
+            </label>
+
+            <input
+              id="image"
+              name="image"
+              type="url"
+              value={form.image}
+              onChange={handleChange}
+              placeholder="Paste an image URL"
+              disabled={loading}
+              className="w-full rounded-xl border border-[#1B4B4B] bg-[#1B4B4B] px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-400 focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+
+            <p className="mt-2 text-xs text-gray-400">
+              You can leave this blank if you don't have an image.
+            </p>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-[#B62779] px-4 py-3 font-bold text-white shadow-lg transition hover:bg-[#5A293C] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <option value="">Select category</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Bags">Bags</option>
-            <option value="Keys">Keys</option>
-            <option value="Others">Others</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: "24px" }}>
-          <label style={{ display: "block", fontSize: "13px", marginBottom: "6px", color: "#9ca3af" }}>
-            Description
-          </label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={3}
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#263437",
-              border: "1px solid #374151",
-              borderRadius: "10px",
-              color: "#fff",
-              fontSize: "14px",
-              boxSizing: "border-box",
-              resize: "vertical",
-            }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "14px",
-            backgroundColor: "#b62779",
-            color: "#fff",
-            border: "none",
-            borderRadius: "12px",
-            fontSize: "16px",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          Submit Report
-        </button>
-      </form>
+            {loading ? "Submitting..." : "Report Lost Item"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -7,12 +7,25 @@ import { registerUser, clearAuthError } from "../features/auth/authSlice";
 export default function RegisterPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, error, accessToken } = useSelector((state) => state.auth);
+
+  const { status, error, accessToken } = useSelector(
+    (state) => state.auth
+  );
 
   useEffect(() => {
-    if (accessToken) navigate("/");
-  }, [accessToken, navigate]);
+  if (accessToken) {
+    const user = JSON.parse(
+      localStorage.getItem("user")
+    );
 
+    if (user?.role === "admin") {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate("/home", { replace: true });
+    }
+  }
+}, [accessToken, navigate]);
+  
   useEffect(() => {
     return () => dispatch(clearAuthError());
   }, [dispatch]);
@@ -22,11 +35,25 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-page">
-      <AuthForm mode="register" onSubmit={handleRegister} status={status} error={error} />
-      <p>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
+    <div className="flex min-h-screen items-center justify-center bg-[#1B4B4B] px-4 py-8">
+      <div className="w-full max-w-md">
+        <AuthForm
+          mode="register"
+          onSubmit={handleRegister}
+          status={status}
+          error={error}
+        />
+
+        <p className="mt-5 text-center text-sm text-gray-300">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-[#B62779] hover:text-pink-300 hover:underline"
+          >
+            Login here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

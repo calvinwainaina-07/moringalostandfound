@@ -16,21 +16,24 @@ export default function HomePage() {
   const [category, setCategory] = useState("All");
 
   useEffect(() => {
-    getItems()
-      .then((data) => {
+    const fetchItems = async () => {
+      try {
+        const data = await getItems();
         setItems(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Failed to load items:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchItems();
   }, []);
 
   const filteredItems = items.filter((item) => {
     const matchesSearch =
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.location.toLowerCase().includes(search.toLowerCase());
+      item.name?.toLowerCase().includes(search.toLowerCase()) ||
+      item.location?.toLowerCase().includes(search.toLowerCase());
 
     const matchesCategory =
       category === "All" || item.category === category;
@@ -39,57 +42,71 @@ export default function HomePage() {
   });
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#2c2d32",
-        color: "#fff",
-        padding: "20px 16px 80px",
-        maxWidth: "480px",
-        margin: "0 auto",
-      }}
-    >
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: "22px", fontWeight: 600 }}>
-            Hello, {user?.email?.split("@")[0] || "Moringa"}!
-          </h1>
-          <p style={{ margin: "4px 0 0", color: "#9ca3af", fontSize: "14px" }}>
-            Find lost & found items
+    <div className="min-h-screen bg-[#2C2D32] px-4 py-6 pb-24 text-white">
+      <div className="mx-auto w-full max-w-2xl">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              Hello, {user?.email?.split("@")[0] || "Moringa"}!
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-400">
+              Find lost & found items
+            </p>
+          </div>
+
+          <button
+            onClick={() => dispatch(logout())}
+            className="rounded-lg border border-[#B62779] px-3 py-2 text-sm font-medium text-[#B62779] transition hover:bg-[#B62779] hover:text-white"
+          >
+            Logout
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="mb-4">
+          <SearchBar value={search} onChange={setSearch} />
+        </div>
+
+        {/* Category Filter */}
+        <CategoryFilter
+          active={category}
+          onChange={setCategory}
+        />
+
+        {/* Section Header */}
+        <div className="mb-4 mt-6">
+          <h2 className="text-lg font-semibold text-gray-100">
+            Recent Items
+          </h2>
+
+          <p className="mt-1 text-sm text-gray-400">
+            Recently reported lost and found items
           </p>
         </div>
-        <button
-          onClick={() => dispatch(logout())}
-          style={{
-            background: "transparent",
-            border: "1px solid #b62779",
-            color: "#b62779",
-            padding: "6px 12px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontSize: "13px",
-          }}
-        >
-          Logout
-        </button>
+
+        {/* Items */}
+        {loading ? (
+          <div className="rounded-xl border border-[#263437] bg-[#263437] p-6 text-center">
+            <p className="text-sm text-gray-400">
+              Loading items...
+            </p>
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="rounded-xl border border-[#263437] bg-[#263437] p-6 text-center">
+            <p className="text-sm text-gray-400">
+              No items found.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredItems.map((item) => (
+              <ItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        )}
       </div>
-
-      <SearchBar value={search} onChange={setSearch} />
-      <CategoryFilter active={category} onChange={setCategory} />
-
-      <h2 style={{ fontSize: "16px", margin: "0 0 12px", color: "#e5e7eb" }}>
-        Recent Items
-      </h2>
-
-      {loading ? (
-        <p style={{ color: "#9ca3af" }}>Loading items...</p>
-      ) : filteredItems.length === 0 ? (
-        <p style={{ color: "#9ca3af" }}>No items found.</p>
-      ) : (
-        filteredItems.map((item) => <ItemCard key={item.id} item={item} />)
-      )}
     </div>
   );
 }
-

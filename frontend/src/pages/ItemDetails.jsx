@@ -1,124 +1,166 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getItemById } from "../services/itemService";
-import StatusBadge from "../components/StatusBadge";
 
 export default function ItemDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    getItemById(id)
-      .then((data) => {
+    const fetchItem = async () => {
+      try {
+        setLoading(true);
+
+        const data = await getItemById(id);
         setItem(data);
+      } catch (err) {
+        console.error("Failed to load item:", err);
+        setError("Could not load this item.");
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchItem();
   }, [id]);
+
+  const handleFoundItem = () => {
+    navigate("/report-found", {
+      state: {
+        lostItem: item,
+      },
+    });
+  };
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#2c2d32", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        Loading...
+      <div className="min-h-screen bg-[#2C2D32] px-4 py-8 text-white">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-gray-400">Loading item...</p>
+        </div>
       </div>
     );
   }
 
-  if (!item) {
+  if (error || !item) {
     return (
-      <div style={{ minHeight: "100vh", background: "#2c2d32", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        Item not found
+      <div className="min-h-screen bg-[#2C2D32] px-4 py-8 text-white">
+        <div className="mx-auto max-w-2xl">
+          <button
+            type="button"
+            onClick={() => navigate("/home")}
+            className="mb-6 text-sm font-medium text-gray-400 hover:text-white"
+          >
+            Back to Home
+          </button>
+
+          <div className="rounded-2xl border border-[#263437] bg-[#263437] p-6 text-center">
+            <p className="text-gray-400">
+              {error || "Item not found."}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#2c2d32",
-        color: "#fff",
-        padding: "20px 16px 40px",
-        maxWidth: "480px",
-        margin: "0 auto",
-      }}
-    >
-      {/* Back button */}
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#fff",
-          fontSize: "18px",
-          marginBottom: "16px",
-          cursor: "pointer",
-        }}
-      >
-        ← Back
-      </button>
+    <div className="min-h-screen bg-[#2C2D32] px-4 py-6 pb-24 text-white">
+      <div className="mx-auto w-full max-w-2xl">
 
-      {/* Image */}
-      <img
-        src={item.image}
-        alt={item.name}
-        style={{
-          width: "100%",
-          height: "260px",
-          objectFit: "cover",
-          borderRadius: "16px",
-          marginBottom: "20px",
-        }}
-      />
+        {/* Back */}
+        <button
+          type="button"
+          onClick={() => navigate("/home")}
+          className="mb-6 text-sm font-medium text-gray-400 transition hover:text-white"
+        >
+          Back to Home
+        </button>
 
-      {/* Title + Badge */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-        <h1 style={{ margin: 0, fontSize: "24px", fontWeight: 600 }}>{item.name}</h1>
-        <StatusBadge status={item.status} />
+        {/* Image */}
+        {item.image ? (
+          <img
+            src={item.image}
+            alt={item.name}
+            className="h-64 w-full rounded-2xl object-cover"
+          />
+        ) : (
+          <div className="flex h-64 w-full items-center justify-center rounded-2xl bg-[#1B4B4B]">
+            <p className="text-sm text-gray-400">
+              No image available
+            </p>
+          </div>
+        )}
+
+        {/* Details */}
+        <div className="mt-5 rounded-2xl border border-[#263437] bg-[#263437] p-6 shadow-lg">
+
+          <div className="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white">
+                {item.name}
+              </h1>
+
+              <p className="mt-1 text-sm text-gray-400">
+                {item.category}
+              </p>
+            </div>
+
+            <span className="rounded-full bg-[#5A293C] px-3 py-1 text-xs font-semibold text-white">
+              Lost
+            </span>
+          </div>
+
+          {/* Description */}
+          <div className="mb-5">
+            <h2 className="mb-2 text-sm font-semibold text-gray-200">
+              Description
+            </h2>
+
+            <p className="text-sm leading-6 text-gray-400">
+              {item.description || "No description provided."}
+            </p>
+          </div>
+
+          {/* Location */}
+          <div className="mb-5">
+            <h2 className="mb-2 text-sm font-semibold text-gray-200">
+              Last Seen
+            </h2>
+
+            <p className="text-sm text-gray-400">
+              {item.location || "Location not provided."}
+            </p>
+          </div>
+
+          {/* Reward */}
+          {item.reward && (
+            <div className="mb-6 rounded-xl bg-[#1B4B4B] p-4">
+              <p className="text-xs text-gray-400">
+                Reward
+              </p>
+
+              <p className="mt-1 font-semibold text-white">
+                {item.reward}
+              </p>
+            </div>
+          )}
+
+          {/* Found Button */}
+          <button
+            type="button"
+            onClick={handleFoundItem}
+            className="w-full rounded-xl bg-[#B62779] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#5A293C]"
+          >
+            I Found This Item
+          </button>
+
+        </div>
       </div>
-
-      {/* Location & Date */}
-      <p style={{ margin: "0 0 6px", color: "#9ca3af", fontSize: "14px" }}>
-        {item.location}
-      </p>
-      <p style={{ margin: "0 0 16px", color: "#6b7280", fontSize: "13px" }}>
-        {item.date}
-      </p>
-
-      {/* Description */}
-      <p style={{ margin: "0 0 20px", lineHeight: 1.5, color: "#e5e7eb" }}>
-        {item.description}
-      </p>
-
-      {/* Reward */}
-      {item.reward && (
-        <p style={{ margin: "0 0 28px", fontSize: "18px", fontWeight: 600, color: "#b62779" }}>
-          Reward: {item.reward}
-        </p>
-      )}
-
-      {/* Action Button */}
-      <button
-        onClick={() => alert("Claim / Found action will be connected later")}
-        style={{
-          width: "100%",
-          padding: "14px",
-          backgroundColor: "#b62779",
-          color: "#fff",
-          border: "none",
-          borderRadius: "12px",
-          fontSize: "16px",
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
-        {item.status === "Lost" ? "I Found This Item" : "This is Mine"}
-      </button>
     </div>
   );
 }

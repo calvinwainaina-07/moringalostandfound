@@ -1,5 +1,18 @@
 {
-  "users": [],
+  "users": [
+    {
+      "id": 1,
+      "name": "Calvin Wainaina",
+      "email": "calvin@example.com",
+      "role": "student"
+    },
+    {
+      "id": 2,
+      "name": "Jane Doe",
+      "email": "jane@example.com",
+      "role": "student"
+    }
+  ],
   "items": [
     {
       "id": 1,

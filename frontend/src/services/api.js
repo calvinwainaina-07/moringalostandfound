@@ -1,16 +1,21 @@
 import axios from "axios";
 
-const client = axios.create({
-  baseURL: "http://localhost:3000",
+const api = axios.create({
+  baseURL: "https://6a8adaaf55d899aede9b8551.mockapi.io/api/v1",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Attach token automatically if present
-client.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
-export default client;
+export default api;
