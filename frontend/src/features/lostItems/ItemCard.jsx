@@ -1,12 +1,16 @@
+import { useNavigate } from "react-router-dom";
+
 function ItemCard({ item }) {
-  const isLost = item.type === "lost";
+  const navigate = useNavigate();
+
+  const isLost = item.status?.toLowerCase() === "lost";
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden mb-4 border border-gray-200">
       {item.image ? (
         <img
           src={item.image}
-          alt={item.title}
+          alt={item.name || "Lost and found item"}
           className="w-full h-48 object-cover"
         />
       ) : (
@@ -18,7 +22,7 @@ function ItemCard({ item }) {
       <div className="p-4">
         <div className="flex justify-between items-start gap-3 mb-2">
           <h3 className="text-lg font-semibold text-[#2c2d32]">
-            {item.title}
+            {item.name}
           </h3>
 
           <span
@@ -49,9 +53,17 @@ function ItemCard({ item }) {
 
           <p>
             <span className="font-medium">Date:</span>{" "}
-            {item.date}
+            {item.createdAt}
           </p>
         </div>
+
+        {/* View Details Button */}
+        <button
+          onClick={() => navigate(`/items/${item.id}`)}
+          className="w-full mt-4 py-2 rounded-lg bg-[#b62779] text-white font-medium hover:opacity-90"
+        >
+          View Details
+        </button>
       </div>
     </div>
   );

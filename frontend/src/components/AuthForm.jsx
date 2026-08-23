@@ -1,16 +1,24 @@
 import { useState } from "react";
 
-export default function AuthForm({ mode, onSubmit, status, error }) {
+export default function AuthForm({
+  mode,
+  onSubmit,
+  status,
+  error,
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("user");
   const [validationError, setValidationError] = useState("");
 
   const isLoading = status === "loading";
   const isRegister = mode === "register";
 
   const validate = () => {
-    if (!email.trim()) return "Email is required";
+    if (!email.trim()) {
+      return "Email is required";
+    }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return "Enter a valid email";
@@ -22,6 +30,10 @@ export default function AuthForm({ mode, onSubmit, status, error }) {
 
     if (isRegister && password !== confirmPassword) {
       return "Passwords do not match";
+    }
+
+    if (!role) {
+      return "Please select an account type";
     }
 
     return "";
@@ -38,7 +50,12 @@ export default function AuthForm({ mode, onSubmit, status, error }) {
     }
 
     setValidationError("");
-    onSubmit({ email, password });
+
+    onSubmit({
+      email,
+      password,
+      role,
+    });
   };
 
   return (
@@ -54,7 +71,9 @@ export default function AuthForm({ mode, onSubmit, status, error }) {
         </div>
 
         <h2 className="text-3xl font-bold text-white">
-          {isRegister ? "Create an account" : "Welcome back"}
+          {isRegister
+            ? "Create an account"
+            : "Welcome back"}
         </h2>
 
         <p className="mt-2 text-sm text-gray-400">
@@ -104,7 +123,7 @@ export default function AuthForm({ mode, onSubmit, status, error }) {
         />
       </div>
 
-      {/* Confirm password */}
+      {/* Confirm Password */}
       {isRegister && (
         <div className="mb-5">
           <label
@@ -118,13 +137,50 @@ export default function AuthForm({ mode, onSubmit, status, error }) {
             id="confirmPassword"
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) =>
+              setConfirmPassword(e.target.value)
+            }
             disabled={isLoading}
             placeholder="Confirm your password"
             className="w-full rounded-xl border border-[#263437] bg-[#1B4B4B] px-4 py-3 text-sm text-white placeholder-gray-400 outline-none transition focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30"
           />
         </div>
       )}
+
+      {/* Account Type */}
+      <div className="mb-5">
+        <p className="mb-3 text-sm font-medium text-gray-200">
+          Account Type
+        </p>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setRole("user")}
+            disabled={isLoading}
+            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+              role === "user"
+                ? "border-[#B62779] bg-[#B62779] text-white"
+                : "border-[#263437] bg-[#1B4B4B] text-gray-300 hover:border-[#B62779]"
+            }`}
+          >
+            User
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRole("admin")}
+            disabled={isLoading}
+            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+              role === "admin"
+                ? "border-[#B62779] bg-[#B62779] text-white"
+                : "border-[#263437] bg-[#1B4B4B] text-gray-300 hover:border-[#B62779]"
+            }`}
+          >
+            Admin
+          </button>
+        </div>
+      </div>
 
       {/* Error */}
       {(validationError || error) && (
@@ -133,11 +189,11 @@ export default function AuthForm({ mode, onSubmit, status, error }) {
         </div>
       )}
 
-      {/* Button */}
+      {/* Submit */}
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-xl bg-[#B62779] px-4 py-3 font-bold text-white shadow-lg transition hover:scale-[1.01] hover:bg-[#5A293C] disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-xl bg-[#B62779] px-4 py-3 font-bold text-white shadow-lg transition hover:bg-[#5A293C] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isLoading
           ? "Please wait..."

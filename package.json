@@ -11,5 +11,8 @@
   "license": "ISC",
   "devDependencies": {
     "json-server": "..."
+  },
+  "dependencies": {
+    "lucide-react": "^1.33.0"
   }
 }

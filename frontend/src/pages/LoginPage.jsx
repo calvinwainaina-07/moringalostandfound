@@ -12,14 +12,26 @@ export default function LoginPage() {
     (state) => state.auth
   );
 
+  // Redirect to Home after successful login
   useEffect(() => {
-    if (accessToken) {
-      navigate("/");
-    }
-  }, [accessToken, navigate]);
+  if (accessToken) {
+    const user = JSON.parse(
+      localStorage.getItem("user")
+    );
 
+    if (user?.role === "admin") {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate("/home", { replace: true });
+    }
+  }
+}, [accessToken, navigate]);
+
+  // Clear any previous auth errors when leaving the page
   useEffect(() => {
-    return () => dispatch(clearAuthError());
+    return () => {
+      dispatch(clearAuthError());
+    };
   }, [dispatch]);
 
   const handleLogin = (credentials) => {

@@ -13,11 +13,19 @@ export default function RegisterPage() {
   );
 
   useEffect(() => {
-    if (accessToken) {
-      navigate("/");
-    }
-  }, [accessToken, navigate]);
+  if (accessToken) {
+    const user = JSON.parse(
+      localStorage.getItem("user")
+    );
 
+    if (user?.role === "admin") {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate("/home", { replace: true });
+    }
+  }
+}, [accessToken, navigate]);
+  
   useEffect(() => {
     return () => dispatch(clearAuthError());
   }, [dispatch]);
