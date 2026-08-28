@@ -1,3 +1,14 @@
+"""
+CLAIMS MODULE - Ownership & Matching Logic Notes
+------------------------------------------------
+- A user can only claim an item that is currently marked as "Lost".
+- Once a claim is approved by admin, the item status should change to "Claimed" or "Found".
+- Duplicate pending claims by the same user on the same item are blocked.
+- Only the claimant can update or delete their own claim (ownership).
+- Full matching logic (comparing lost vs found reports) will be completed 
+  once the Item model from Hasim is ready.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
