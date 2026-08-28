@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.routes import claims   # ← add this
 
 app = FastAPI(
     title="Moringa Lost & Found API",
@@ -6,16 +7,15 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Register routes
+app.include_router(claims.router)
+
 
 @app.get("/")
 def root():
-    return {
-        "message": "Moringa Lost & Found API is running"
-    }
+    return {"message": "Moringa Lost & Found API is running"}
 
 
 @app.get("/health")
 def health_check():
-    return {
-        "status": "healthy"
-    }
+    return {"status": "healthy"}
