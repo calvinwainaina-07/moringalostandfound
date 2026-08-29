@@ -1,6 +1,24 @@
+import os
+
+from dotenv import load_dotenv
 from flask import Flask
+from flask_jwt_extended import JWTManager
+
+from app.routes.auth import auth_bp
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ENV_FILE = os.path.join(BASE_DIR, ".env")
+
+load_dotenv(ENV_FILE)
 
 app = Flask(__name__)
+
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+
+jwt = JWTManager(app)
+
+app.register_blueprint(auth_bp)
 
 
 @app.route("/")
