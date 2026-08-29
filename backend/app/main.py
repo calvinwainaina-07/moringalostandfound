@@ -1,21 +1,10 @@
-from fastapi import FastAPI
+from flask import Flask
 
-app = FastAPI(
-    title="Moringa Lost & Found API",
-    description="Backend API for the Moringa Lost & Found system",
-    version="1.0.0",
-)
+app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return {"message": "Moringa Lost and Found API is running"}
 
-@app.get("/")
-def root():
-    return {
-        "message": "Moringa Lost & Found API is running"
-    }
-
-
-@app.get("/health")
-def health_check():
-    return {
-        "status": "healthy"
-    }
+if __name__ == "__main__":
+    app.run(debug=True)
