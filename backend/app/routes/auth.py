@@ -1,115 +1,171 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
-from marshmallow import ValidationError
+import os
+from datetime import datetime, timedelta, timezone
 
-from app.database import SessionLocal
+import jwt
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.user import User
 from app.schemas.user import (
-    UserLoginSchema,
-    UserRegisterSchema,
-    UserResponseSchema,
+    RegisterResponse,
+    TokenResponse,
+    UserLogin,
+    UserRegister,
+    UserResponse,
 )
-from app.services.auth_service import authenticate_user, register_user
+from app.services.auth_service import (
+    authenticate_user,
+    register_user,
+)
 
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"],
+)
 
-register_schema = UserRegisterSchema()
-login_schema = UserLoginSchema()
-response_schema = UserResponseSchema()
+security = HTTPBearer()
 
+JWT_SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY",
+    "development-secret-key-change-this",
+)
 
-@auth_bp.route("/register", methods=["POST"])
-def register():
-    db = SessionLocal()
-
-    try:
-        data = register_schema.load(request.get_json() or {})
-
-        user = register_user(
-            db=db,
-            name=data["name"],
-            email=data["email"],
-            password=data["password"],
-        )
-
-        if user is None:
-            return jsonify({"message": "Email already registered"}), 409
-
-        return jsonify({
-            "message": "User registered successfully",
-            "user": response_schema.dump(user),
-        }), 201
-
-    except ValidationError as error:
-        return jsonify({
-            "message": "Validation error",
-            "errors": error.messages,
-        }), 400
-
-    finally:
-        db.close()
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_MINUTES = 60
 
 
-@auth_bp.route("/login", methods=["POST"])
-def login():
-    db = SessionLocal()
+def create_access_token(user: User) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=JWT_EXPIRATION_MINUTES
+    )
 
-    try:
-        data = login_schema.load(request.get_json() or {})
+    payload = {
+        "sub": str(user.id),
+        "role": user.role,
+        "name": user.name,
+        "exp": expire,
+    }
 
-        user = authenticate_user(
-            db=db,
-            email=data["email"],
-            password=data["password"],
-        )
-
-        if user is None:
-            return jsonify({
-                "message": "Invalid email or password"
-            }), 401
-
-        access_token = create_access_token(
-            identity=str(user.id),
-            additional_claims={
-                "role": user.role,
-                "name": user.name,
-            },
-        )
-
-        return jsonify({
-            "message": "Login successful",
-            "access_token": access_token,
-            "user": response_schema.dump(user),
-        }), 200
-
-    except ValidationError as error:
-        return jsonify({
-            "message": "Validation error",
-            "errors": error.messages,
-        }), 400
-
-    finally:
-        db.close()
+    return jwt.encode(
+        payload,
+        JWT_SECRET_KEY,
+        algorithm=JWT_ALGORITHM,
+    )
 
 
-@auth_bp.route("/me", methods=["GET"])
-@jwt_required()
-def get_current_user():
-    db = SessionLocal()
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    token = credentials.credentials
 
     try:
-        user_id = get_jwt_identity()
+        payload = jwt.decode(
+            token,
+            JWT_SECRET_KEY,
+            algorithms=[JWT_ALGORITHM],
+        )
 
-        from app.models.user import User
+        user_id = payload.get("sub")
 
-        user = db.query(User).filter(User.id == int(user_id)).first()
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication token",
+            )
 
-        if user is None:
-            return jsonify({"message": "User not found"}), 404
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+        )
 
-        return jsonify({
-            "user": response_schema.dump(user),
-        }), 200
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token",
+        )
 
-    finally:
-        db.close()
+    user = (
+        db.query(User)
+        .filter(User.id == int(user_id))
+        .first()
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    return user
+
+
+@router.post(
+    "/register",
+    response_model=RegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def register(
+    user_data: UserRegister,
+    db: Session = Depends(get_db),
+):
+    user = register_user(
+        db=db,
+        name=user_data.name,
+        email=user_data.email,
+        password=user_data.password,
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered",
+        )
+
+    return {
+        "message": "User registered successfully",
+        "user": user,
+    }
+
+
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+)
+def login(
+    user_data: UserLogin,
+    db: Session = Depends(get_db),
+):
+    user = authenticate_user(
+        db=db,
+        email=user_data.email,
+        password=user_data.password,
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    access_token = create_access_token(user)
+
+    return {
+        "message": "Login successful",
+        "access_token": access_token,
+        "user": user,
+    }
+
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+)
+def me(
+    current_user: User = Depends(get_current_user),
+):
+    return current_user

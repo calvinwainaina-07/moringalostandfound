@@ -1,31 +1,44 @@
-import os
+from fastapi import FastAPI
 
-from dotenv import load_dotenv
-from flask import Flask
-from flask_jwt_extended import JWTManager
+from app.database import Base, engine
 
-from app.routes.auth import auth_bp
+# Models
+from app.models.user import User
+from app.models.item import Item
+from app.models.claim import Claim
 
-load_dotenv()
-
-app = Flask(__name__)
-
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-
-jwt = JWTManager(app)
-
-app.register_blueprint(auth_bp)
+# Routers
+from app.routes.auth import router as auth_router
+from app.routes.items import router as items_router
+from app.routes.claims import router as claims_router
 
 
-@app.route("/")
+# Create database tables
+Base.metadata.create_all(bind=engine)
+
+
+app = FastAPI(
+    title="Moringa Lost & Found API",
+    description="Backend API for the Moringa Lost & Found system",
+    version="1.0.0",
+)
+
+
+# Register routers
+app.include_router(auth_router)
+app.include_router(items_router)
+app.include_router(claims_router)
+
+
+@app.get("/")
 def home():
-    return {"message": "Moringa Lost and Found API is running"}
+    return {
+        "message": "Moringa Lost and Found API is running"
+    }
 
 
-@app.route("/health")
+@app.get("/health")
 def health_check():
-    return {"status": "healthy"}
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return {
+        "status": "healthy"
+    }

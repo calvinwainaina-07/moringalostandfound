@@ -1,26 +1,44 @@
-from flask_bcrypt import Bcrypt
+import bcrypt
 from sqlalchemy.orm import Session
 
 from app.models.user import User
 
 
-bcrypt = Bcrypt()
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
 
 
-def register_user(db: Session, name: str, email: str, password: str):
+def verify_password(password: str, hashed_password: str) -> bool:
+    return bcrypt.checkpw(
+        password.encode("utf-8"),
+        hashed_password.encode("utf-8")
+    )
+
+
+def register_user(
+    db: Session,
+    name: str,
+    email: str,
+    password: str,
+):
     email = email.strip().lower()
 
-    existing_user = db.query(User).filter(User.email == email).first()
+    existing_user = (
+        db.query(User)
+        .filter(User.email == email)
+        .first()
+    )
 
     if existing_user:
         return None
 
-    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-
     user = User(
         name=name.strip(),
         email=email,
-        password=hashed_password,
+        password=hash_password(password),
         role="user",
     )
 
@@ -31,15 +49,23 @@ def register_user(db: Session, name: str, email: str, password: str):
     return user
 
 
-def authenticate_user(db: Session, email: str, password: str):
+def authenticate_user(
+    db: Session,
+    email: str,
+    password: str,
+):
     email = email.strip().lower()
 
-    user = db.query(User).filter(User.email == email).first()
+    user = (
+        db.query(User)
+        .filter(User.email == email)
+        .first()
+    )
 
     if not user:
         return None
 
-    if not bcrypt.check_password_hash(user.password, password):
+    if not verify_password(password, user.password):
         return None
 
     return user

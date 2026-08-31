@@ -1,23 +1,32 @@
-from marshmallow import Schema, fields, validate
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-class UserRegisterSchema(Schema):
-    name = fields.Str(required=True, validate=validate.Length(min=2, max=100))
-    email = fields.Email(required=True)
-    password = fields.Str(required=True, load_only=True, validate=validate.Length(min=8))
-    role = fields.Str(
-        load_default="user",
-        validate=validate.OneOf(["user", "admin"])
-    )
+class UserRegister(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    email: EmailStr
+    password: str = Field(min_length=8)
 
 
-class UserLoginSchema(Schema):
-    email = fields.Email(required=True)
-    password = fields.Str(required=True, load_only=True)
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 
-class UserResponseSchema(Schema):
-    id = fields.Int()
-    name = fields.Str()
-    email = fields.Email()
-    role = fields.Str()
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: EmailStr
+    role: str
+
+
+class TokenResponse(BaseModel):
+    message: str
+    access_token: str
+    user: UserResponse
+
+
+class RegisterResponse(BaseModel):
+    message: str
+    user: UserResponse
