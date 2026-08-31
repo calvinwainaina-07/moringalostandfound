@@ -1,0 +1,60 @@
+{
+  "users": [
+    {
+      "email": "hashimdixon5@gmail.com",
+      "password": "$2a$10$NPfNq7Dro8cgTlWTOLhA6Oo9IDQMPMkG/OMw1uNTqOrlZDT/1/F3a",
+      "id": 1
+    },
+    {
+      "email": "calvinwainaina40@gmail.com",
+      "password": "$2a$10$wUcFwanzn1cL8w9nfeXuyOd0ZUSvZzQyHfupyjN82L5OWvFYsqBoK",
+      "id": 2
+    }
+  ],
+  "items": [
+    {
+      "id": 1,
+      "name": "Black Backpack",
+      "category": "Bags",
+      "location": "Library Area",
+      "date": "12 May 2024",
+      "description": "Black backpack with laptop compartment. Brand: Dell.",
+      "status": "Lost",
+      "reward": "KSh 500",
+      "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400"
+    },
+    {
+      "id": 2,
+      "name": "Water Bottle",
+      "category": "Others",
+      "location": "Sports Complex",
+      "date": "11 May 2024",
+      "description": "Blue metal water bottle",
+      "status": "Found",
+      "reward": null,
+      "image": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400"
+    },
+    {
+      "id": 3,
+      "name": "Student ID",
+      "category": "Keys",
+      "location": "Cafeteria",
+      "date": "10 May 2024",
+      "description": "Moringa student ID card",
+      "status": "Lost",
+      "reward": "KSh 200",
+      "image": "https://images.unsplash.com/photo-1586769852836-bc069f19e1b6?w=400"
+    },
+    {
+      "id": 4,
+      "name": "Laptop",
+      "category": "Electronics",
+      "location": "Computer Lab",
+      "date": "9 May 2024",
+      "description": "Silver MacBook Pro 13-inch",
+      "status": "Lost",
+      "reward": "KSh 2000",
+      "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400"
+    }
+  ]
+}
