@@ -7,6 +7,7 @@ export default function AuthForm({
   error,
 }) {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("user");
@@ -24,8 +25,12 @@ export default function AuthForm({
       return "Enter a valid email";
     }
 
-    if (password.length < 6) {
-      return "Password must be at least 6 characters";
+    if (password.length < 8) {
+      return "Password must be at least 8 characters";
+    }
+
+    if (isRegister && name.trim().length < 2) {
+      return "Name must be at least 2 characters";
     }
 
     if (isRegister && password !== confirmPassword) {
@@ -52,6 +57,7 @@ export default function AuthForm({
     setValidationError("");
 
     onSubmit({
+      name: name.trim(),
       email,
       password,
       role,
@@ -84,6 +90,23 @@ export default function AuthForm({
       </div>
 
       {/* Email */}
+      {isRegister && (
+        <div className="mb-5">
+          <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-200">
+            Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
+            placeholder="Enter your name"
+            className="w-full rounded-xl border border-[#263437] bg-[#1B4B4B] px-4 py-3 text-sm text-white placeholder-gray-400 outline-none transition focus:border-[#B62779] focus:ring-2 focus:ring-[#B62779]/30"
+          />
+        </div>
+      )}
+
       <div className="mb-5">
         <label
           htmlFor="email"
@@ -147,7 +170,6 @@ export default function AuthForm({
         </div>
       )}
 
-      {/* Account Type */}
       <div className="mb-5">
         <p className="mb-3 text-sm font-medium text-gray-200">
           Account Type

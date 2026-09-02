@@ -1,18 +1,15 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { createItem } from "../services/itemService";
 
 export default function ReportFound() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user } = useSelector((state) => state.auth);
-
   const lostItem = location.state?.lostItem;
 
   const [form, setForm] = useState({
-    name: lostItem?.name || "",
+    name: lostItem?.title || "",
     category: lostItem?.category || "",
     location: "",
     date: "",
@@ -37,26 +34,11 @@ export default function ReportFound() {
 
     try {
       const foundItem = {
-        name: form.name.trim(),
+        title: form.name.trim(),
         category: form.category,
         location: form.location.trim(),
-        date: form.date,
         description: form.description.trim(),
-
-        status: "Found",
-        reportType: "found",
-
-        reportedBy: user?.email || "Unknown user",
-        reportedByUserId: user?.id || null,
-
-        isOwner: false,
-
-        adminStatus: "Pending",
-
-        // Keep track of the original lost report
-        originalLostItemId: lostItem?.id || null,
-
-        createdAt: new Date().toISOString(),
+        item_type: "found",
       };
 
       await createItem(foundItem);
@@ -107,7 +89,7 @@ export default function ReportFound() {
             </p>
 
             <p className="mt-1 text-base font-bold text-white">
-              {lostItem.name}
+              {lostItem.title}
             </p>
 
             <p className="mt-1 text-xs text-gray-400">

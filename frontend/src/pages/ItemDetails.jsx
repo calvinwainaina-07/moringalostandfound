@@ -82,10 +82,10 @@ export default function ItemDetails() {
         </button>
 
         {/* Image */}
-        {item.image ? (
+        {item.image_url ? (
           <img
-            src={item.image}
-            alt={item.name}
+            src={item.image_url}
+            alt={item.title}
             className="h-64 w-full rounded-2xl object-cover"
           />
         ) : (
@@ -102,7 +102,7 @@ export default function ItemDetails() {
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-white">
-                {item.name}
+                {item.title}
               </h1>
 
               <p className="mt-1 text-sm text-gray-400">
@@ -111,7 +111,7 @@ export default function ItemDetails() {
             </div>
 
             <span className="rounded-full bg-[#5A293C] px-3 py-1 text-xs font-semibold text-white">
-              Lost
+              {item.item_type}
             </span>
           </div>
 
@@ -137,27 +137,14 @@ export default function ItemDetails() {
             </p>
           </div>
 
-          {/* Reward */}
-          {item.reward && (
-            <div className="mb-6 rounded-xl bg-[#1B4B4B] p-4">
-              <p className="text-xs text-gray-400">
-                Reward
-              </p>
-
-              <p className="mt-1 font-semibold text-white">
-                {item.reward}
-              </p>
-            </div>
-          )}
-
           {/* Found Button */}
-          <button
+          {item.item_type === "lost" && item.status === "open" && <button
             type="button"
             onClick={handleFoundItem}
             className="w-full rounded-xl bg-[#B62779] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#5A293C]"
           >
             I Found This Item
-          </button>
+          </button>}
 
         </div>
       </div>

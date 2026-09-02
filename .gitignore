@@ -4,3 +4,7 @@ dist/
 frontend/dist/
 *.log
 lost_and_found.db
+.env
+.env.*
+!.env.example
+backend/.venv/

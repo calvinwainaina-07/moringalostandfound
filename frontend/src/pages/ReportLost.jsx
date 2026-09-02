@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { createItem } from "../services/itemService";
 
 export default function ReportLost() {
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
-
   const [form, setForm] = useState({
     name: "",
     category: "Others",
@@ -51,17 +48,12 @@ export default function ReportLost() {
       setLoading(true);
 
       const newItem = {
-        name: form.name.trim(),
+        title: form.name.trim(),
         category: form.category,
         location: form.location.trim(),
         description: form.description.trim(),
-        reward: form.reward.trim() || null,
-        image: form.image.trim() || null,
-        status: "Lost",
-        reportType: "lost",
-        userId: user?.id || null,
-        reportedBy: user?.email || null,
-        createdAt: new Date().toISOString(),
+        image_url: form.image.trim() || null,
+        item_type: "lost",
       };
 
       await createItem(newItem);

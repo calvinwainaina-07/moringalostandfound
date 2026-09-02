@@ -32,7 +32,7 @@ export default function HomePage() {
 
   const filteredItems = items.filter((item) => {
     const matchesSearch =
-      item.name?.toLowerCase().includes(search.toLowerCase()) ||
+      item.title?.toLowerCase().includes(search.toLowerCase()) ||
       item.location?.toLowerCase().includes(search.toLowerCase());
 
     const matchesCategory =

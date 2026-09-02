@@ -23,6 +23,7 @@ def register_user(
     name: str,
     email: str,
     password: str,
+    role: str = "user",
 ):
     email = email.strip().lower()
 
@@ -39,7 +40,7 @@ def register_user(
         name=name.strip(),
         email=email,
         password=hash_password(password),
-        role="user",
+        role=role,
     )
 
     db.add(user)

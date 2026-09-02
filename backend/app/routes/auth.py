@@ -118,6 +118,7 @@ def register(
         name=user_data.name,
         email=user_data.email,
         password=user_data.password,
+        role=user_data.role,
     )
 
     if user is None:

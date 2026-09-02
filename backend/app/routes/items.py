@@ -5,29 +5,22 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.item import Item, ItemType
+from app.models.user import User
+from app.routes.auth import get_current_user
 from app.schemas.item import ItemCreate, ItemOut, ItemUpdate
 from app.services import item_service
 
 router = APIRouter(prefix="/items", tags=["Items"])
 
 
-# TODO: Replace this with Calvin's real auth dependency once /backend-auth is merged.
-# e.g. from app.services.auth_service import get_current_user
-# and swap `current_user_id: int = Depends(get_current_user_id)` below
-# for `current_user: User = Depends(get_current_user)` and use current_user.id.
-def get_current_user_id() -> int:
-    """Placeholder until real JWT auth is wired in. Returns a fake user id."""
-    return 1
-
-
 @router.post("/", response_model=ItemOut, status_code=status.HTTP_201_CREATED)
 def create_item(
     item_in: ItemCreate,
     db: Session = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Create a lost or found item report. item_type field determines which."""
-    return item_service.create_item(db, item_in, reported_by_id=current_user_id)
+    return item_service.create_item(db, item_in, reported_by_id=current_user.id)
 
 
 @router.get("/", response_model=list[ItemOut])
@@ -59,14 +52,14 @@ def update_item(
     item_id: int,
     item_in: ItemUpdate,
     db: Session = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Update an item. Only the reporting user should be allowed (enforced once auth lands)."""
     item = item_service.get_item(db, item_id)
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
-    if item.reported_by_id != current_user_id:
+    if item.reported_by_id != current_user.id and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to update this item",
@@ -79,14 +72,14 @@ def update_item(
 def delete_item(
     item_id: int,
     db: Session = Depends(get_db),
-    current_user_id: int = Depends(get_current_user_id),
+    current_user: User = Depends(get_current_user),
 ):
     """Delete an item. Only the reporting user should be allowed (enforced once auth lands)."""
     item = item_service.get_item(db, item_id)
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
-    if item.reported_by_id != current_user_id:
+    if item.reported_by_id != current_user.id and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to delete this item",

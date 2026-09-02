@@ -8,23 +8,15 @@ export default function RegisterPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { status, error, accessToken } = useSelector(
+  const { status, error } = useSelector(
     (state) => state.auth
   );
 
   useEffect(() => {
-  if (accessToken) {
-    const user = JSON.parse(
-      localStorage.getItem("user")
-    );
-
-    if (user?.role === "admin") {
-      navigate("/admin", { replace: true });
-    } else {
-      navigate("/home", { replace: true });
+    if (status === "succeeded") {
+      navigate("/login", { replace: true });
     }
-  }
-}, [accessToken, navigate]);
+  }, [status, navigate]);
   
   useEffect(() => {
     return () => dispatch(clearAuthError());

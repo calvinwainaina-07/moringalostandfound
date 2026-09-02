@@ -22,37 +22,30 @@ export const loginUser = createAsyncThunk(
 
   async ({ email, password, role }, { rejectWithValue }) => {
     try {
-      const response = await api.get("/users");
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
 
-      const user = response.data.find(
-        (u) =>
-          u.email === email &&
-          u.password === password
-      );
+      const data = response.data;
 
-      if (!user) {
-        throw new Error("Invalid email or password");
-      }
-
-      /*
-      Check the selected account type.
-      */
-
-      if (user.role !== role) {
+      // Make sure the selected role matches
+      // the role returned by the backend.
+      if (role && data.user.role !== role) {
         throw new Error(
-          `This account is registered as a ${
-            user.role || "user"
-          }.`
+          `This account is registered as a ${data.user.role}.`
         );
       }
 
       return {
-        accessToken: "mock-token",
-        user,
+        accessToken: data.access_token,
+        user: data.user,
       };
     } catch (err) {
       return rejectWithValue(
-        err.message || "Invalid email or password"
+        err.response?.data?.detail ||
+        err.message ||
+        "Invalid email or password"
       );
     }
   }
@@ -67,35 +60,27 @@ REGISTER
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
 
-  async (
-    { email, password, role },
-    { rejectWithValue }
-  ) => {
+  async ({ email, password, name, role }, { rejectWithValue }) => {
     try {
-      const existingUsers = await api.get("/users");
-
-      const emailExists = existingUsers.data.some(
-        (u) => u.email === email
-      );
-
-      if (emailExists) {
-        throw new Error("Email already exists");
-      }
-
-      const response = await api.post("/users", {
+      const response = await api.post("/auth/register", {
         email,
         password,
+        name,
         role,
       });
 
-      return {
-        accessToken: "mock-token",
-        user: response.data,
-      };
+      /*
+      Your backend registration currently creates
+      the account. We don't assume it logs the user
+      in automatically.
+      */
+
+      return response.data;
     } catch (err) {
       return rejectWithValue(
+        err.response?.data?.detail ||
         err.message ||
-          "Could not register. Try a different email."
+        "Could not register. Try a different email."
       );
     }
   }
@@ -170,34 +155,15 @@ const authSlice = createSlice({
         state.error = null;
       })
 
-      .addCase(
-        registerUser.fulfilled,
-        (state, action) => {
-          state.status = "succeeded";
-          state.accessToken =
-            action.payload.accessToken;
+      .addCase(registerUser.fulfilled, (state) => {
+        state.status = "succeeded";
+        state.error = null;
+      })
 
-          state.user = action.payload.user;
-
-          localStorage.setItem(
-            "accessToken",
-            action.payload.accessToken
-          );
-
-          localStorage.setItem(
-            "user",
-            JSON.stringify(action.payload.user)
-          );
-        }
-      )
-
-      .addCase(
-        registerUser.rejected,
-        (state, action) => {
-          state.status = "failed";
-          state.error = action.payload;
-        }
-      );
+      .addCase(registerUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
   },
 });
 

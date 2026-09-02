@@ -19,40 +19,35 @@ export default function ItemCard({ item }) {
           transition: "transform 0.15s ease",
         }}
       >
-        <img
-          src={item.image}
-          alt={item.name}
-          style={{
-            width: "90px",
-            height: "90px",
-            objectFit: "cover",
-            borderRadius: "12px",
-            flexShrink: 0,
-          }}
-        />
+        {item.image_url ? (
+          <img
+            src={item.image_url}
+            alt={item.title}
+            style={{ width: "90px", height: "90px", objectFit: "cover", borderRadius: "12px", flexShrink: 0 }}
+          />
+        ) : (
+          <div style={{ width: "90px", height: "90px", borderRadius: "12px", flexShrink: 0, display: "grid", placeItems: "center", backgroundColor: "#1b4b4b", color: "#9ca3af", fontSize: "12px" }}>
+            No image
+          </div>
+        )}
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <h3 style={{ margin: 0, fontSize: "16px", color: "#fff", fontWeight: 600 }}>
-                {item.name}
+                {item.title}
               </h3>
-              <StatusBadge status={item.status} />
+              <StatusBadge status={item.item_type} />
             </div>
 
             <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#9ca3af" }}>
                {item.location}
             </p>
             <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#6b7280" }}>
-               {item.date}
+               {new Date(item.created_at).toLocaleDateString()}
             </p>
           </div>
 
-          {item.reward && (
-            <p style={{ margin: 0, fontSize: "13px", color: "#b62779", fontWeight: 600 }}>
-              Reward: {item.reward}
-            </p>
-          )}
         </div>
       </div>
     </Link>
